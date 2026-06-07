@@ -16,6 +16,37 @@
   color: #4b5563;
 }
 
+.planner-form {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.planner-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.planner-form select,
+.planner-form input {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.planner-form button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
 .error {
   color: #b91c1c;
   background: #fee2e2;
@@ -24,7 +55,12 @@
   padding: 0.75rem;
 }
 
-.destination-list {
+/* .itinerary h2 {
+  margin: 1rem 0 0.8rem;
+  font-size: 1.25rem;
+}
+
+.day-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -32,19 +68,21 @@
   gap: 0.75rem;
 }
 
-.destination-card {
+.day-card {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 1rem;
-  background: #ffffff;
+  padding: 0.9rem 1rem;
+  background: #fff;
 }
 
-.destination-card h2 {
-  margin: 0 0 0.35rem;
-  font-size: 1.125rem;
+.day-card h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
 }
 
-.destination-card p {
+.day-card ul {
   margin: 0;
+  padding-left: 1rem;
   color: #4b5563;
-}
+} */
+
