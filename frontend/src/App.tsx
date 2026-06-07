@@ -113,7 +113,7 @@ function App() {
               onChange={(e) => setSelectedDestination(e.target.value)}
             >
               {destinations.map((destination) => (
-                <option key={destination.id} value='destination.id'>
+                <option key={destination.id} value={destination.id}>
                   {destination.name}
                 </option>
               ))}
