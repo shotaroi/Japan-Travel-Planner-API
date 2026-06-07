@@ -32,5 +32,4 @@ public class TripPlanEntity {
     void onCreate() {
         createdAt = LocalDateTime.now();
     }
-
 }
