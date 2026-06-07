@@ -19,6 +19,13 @@ type PlanResponse = {
   itinerary: DayPlan[]
 }
 
+type ValidationErrorResponse = {
+  timestamp: string
+  status: number
+  message: string
+  fieldErrors: Record<string, string>
+}
+
 function App() {
   const [destinations, setDestinations] = useState<Destination[]>([])
   const [selectedDestination, setSelectedDestination] = useState('tokyo')
@@ -26,7 +33,9 @@ function App() {
 
   const [loadingDestinations, setLoadingDestinations] = useState(true)
   const [loadingPlan, setLoadingPlan] = useState(false)
+
   const [error, setError] = useState<string | null>(null)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   const [plan, setPlan] = useState<PlanResponse | null>(null)
 
@@ -52,6 +61,7 @@ function App() {
     event.preventDefault()
     setLoadingPlan(true)
     setError(null)
+    setValidationErrors({})
 
     try {
       const response = await fetch('http://localhost:8080/api/plan', {
@@ -66,7 +76,16 @@ function App() {
         })
       })
 
-      if (!response.ok) throw new Error(`Failed to generate plan (${response.status})`)
+      if (!response.ok) {
+        if (response.status === 400) {
+          const validation = (await response.json()) as ValidationErrorResponse
+          setValidationErrors(validation.fieldErrors ?? {})
+          setPlan(null)
+          return
+        }
+
+        throw new Error(`Failed to generate plan (${response.status})`)
+      }
 
       const data = (await response.json()) as PlanResponse
       setPlan(data)
@@ -119,6 +138,19 @@ function App() {
       )}
 
       {error && <p className='error'>{error}</p>}
+
+      {Object.keys(validationErrors).length > 0 && ( // If there are validation errors, show them in a list
+        <div className='error'>
+          <p>Please fix the folowing:</p>
+          <ul>
+            {Object.entries(validationErrors).map(([field, message]) => (
+              <li key={field}>
+                <strong>{field}</strong>: {message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {plan && (
         <section className='itinerary'>
