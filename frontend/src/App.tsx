@@ -201,8 +201,12 @@ function App() {
       )}
 
       <section className='history'>
-        <h2>Saved Plans</h2>
-        {loadingHistory && <p>loading history...</p>}
+        <div className='history-header'>
+          <h2>Saved Plans</h2>
+          <button type='button' onClick={loadPlanHistory} disabled={loadingHistory}>
+            {loadingHistory ? 'Refreshing...' : 'Refresh history'}
+          </button>
+        </div>
 
         {!loadingHistory && history.length === 0 && <p>No saved plans yet.</p>}
 
@@ -211,6 +215,7 @@ function App() {
             {history.map((item) => (
               <li key={item.id}>
                 #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
+                {new Date(item.createdAt).toLocaleString()}
               </li>
             ))}
           </ul>
