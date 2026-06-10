@@ -47,7 +47,7 @@ class PlanControllerSuccessTest {
         .contentType(APPLICATION_JSON)
         .content(body))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.desination").value("tokyo"))
+        .andExpect(jsonPath("$.destination").value("tokyo"))
         .andExpect(jsonPath("$.days").value(3))
         .andExpect(jsonPath("$.itinerary.length()").value(3))
         .andExpect(jsonPath("$.itinerary[0].day").value(1));
