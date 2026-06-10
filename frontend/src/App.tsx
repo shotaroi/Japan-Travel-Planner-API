@@ -19,6 +19,13 @@ type PlanResponse = {
   itinerary: DayPlan[]
 }
 
+type PlanHistoryItem = {
+  id: number
+  destination: string
+  days: number
+  createdAt: string
+}
+
 type ValidationErrorResponse = {
   timestamp: string
   status: number
@@ -33,11 +40,30 @@ function App() {
 
   const [loadingDestinations, setLoadingDestinations] = useState(true)
   const [loadingPlan, setLoadingPlan] = useState(false)
+  const [loadingHistory, setLoadingHistory] = useState(true)
 
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   const [plan, setPlan] = useState<PlanResponse | null>(null)
+  const [history, setHistory] = useState<PlanHistoryItem[]>([])
+
+  const loadPlanHistory = async () => {
+    try {
+      setLoadingHistory(true)
+      const response = await fetch('http://localhost:8080/api/plan')
+      if (!response.ok) {
+        throw new Error(`Failed to load history (${response.status})`)
+      }
+
+      const data = (await response.json()) as PlanHistoryItem[]
+      setHistory(data.slice().reverse())
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setLoadingHistory(false)
+    }
+  }
 
   useEffect(() => {
     const fetchDestinations = async () => {
@@ -55,6 +81,7 @@ function App() {
     }
 
     fetchDestinations()
+    loadPlanHistory()
   }, [])
 
   const handleGeneratePlan = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -172,6 +199,23 @@ function App() {
           </ul>
         </section>
       )}
+
+      <section className='history'>
+        <h2>Saved Plans</h2>
+        {loadingHistory && <p>loading history...</p>}
+
+        {!loadingHistory && history.length === 0 && <p>No saved plans yet.</p>}
+
+        {!loadingHistory && history.length > 0 && (
+          <ul className='history-list'>
+            {history.map((item) => (
+              <li key={item.id}>
+                #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   )
 }
