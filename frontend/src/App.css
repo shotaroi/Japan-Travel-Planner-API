@@ -40,6 +40,23 @@
   padding: 0.55rem 0.7rem;
   font-size: 0.95rem;
   background: #fff;
+  color: #111827;
+}
+
+.planner-form select option {
+  color: #111827;
+  background: #fff;
+}
+
+.planner-form button {
+  width: fit-content;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
 }
 
 .planner-form button:disabled {
@@ -55,7 +72,8 @@
   padding: 0.75rem;
 }
 
-/* .itinerary h2 {
+.itinerary h2,
+.history h2 {
   margin: 1rem 0 0.8rem;
   font-size: 1.25rem;
 }
@@ -84,5 +102,9 @@
   margin: 0;
   padding-left: 1rem;
   color: #4b5563;
-} */
+}
+
+.history {
+  margin-top: 1.5rem;
+}
 
