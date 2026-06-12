@@ -62,6 +62,9 @@ public class PlanController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePlan(@PathVariable Long id) {
+        if (!tripPlanRepository.existsById(id)) {
+            throw new PlanNotFoundException(id);
+        }
         tripPlanRepository.deleteById(id);
     }
 

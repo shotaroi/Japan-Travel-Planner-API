@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.japanplanner.plan.PlanNotFoundException;
+
 @RestControllerAdvice // This annotation is used to handle exceptions globally across all controllers
 public class GlobalExceptionHandler {
     
@@ -32,10 +34,22 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PlanNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiErrorResponse handlePlanNotFound(PlanNotFoundException ex) {
+        return new ApiErrorResponse(Instant.now().toString(), 404, ex.getMessage());
+    }
+
     public record ValidationErrorResponse(
         String timestamp,
         int status,
         String message,
         Map<String, String> fieldErros
+    ) {}
+
+    public record ApiErrorResponse(
+        String timestamp,
+        int status, 
+        String message
     ) {}
 }
