@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type SubmitEventHandler } from 'react'
 import './App.css'
 
 type Destination = {
@@ -84,7 +84,7 @@ function App() {
     loadPlanHistory()
   }, [])
 
-  const handleGeneratePlan = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleGeneratePlan: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
     setLoadingPlan(true)
     setError(null)
