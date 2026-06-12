@@ -124,10 +124,26 @@ function App() {
     }
   }
 
+  const handleDeletePlan = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/plan/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok && response.status !== 204) {
+        throw new Error(`Failed to delete plan (${response.status})`)
+      }
+
+      setHistory((prev) => prev.filter((item) => item.id !== id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    }
+  }
+
   return (
     <main className='app'>
       <h1>Japan Travel Planner</h1>
-      <p>Choose your next destination</p>
+      <p>Create a simple day-by-day itinerary.</p>
 
       {loadingDestinations && <p>Loading destinations...</p>}
 
@@ -213,9 +229,14 @@ function App() {
         {!loadingHistory && history.length > 0 && (
           <ul className='history-list'>
             {history.map((item) => (
-              <li key={item.id}>
-                #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
-                {new Date(item.createdAt).toLocaleString()}
+              <li key={item.id} className='history-item'>
+                <span>
+                  #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
+                  {new Date(item.createdAt).toLocaleString()}
+                </span>
+                <button type='button' onClick={() => handleDeletePlan(item.id)}>
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
