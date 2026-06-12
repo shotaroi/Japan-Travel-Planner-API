@@ -41,6 +41,7 @@ function App() {
   const [loadingDestinations, setLoadingDestinations] = useState(true)
   const [loadingPlan, setLoadingPlan] = useState(false)
   const [loadingHistory, setLoadingHistory] = useState(true)
+  const [deletingPlanIds, setDeletingPlanIds] = useState<number[]>([])
 
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
@@ -125,6 +126,9 @@ function App() {
   }
 
   const handleDeletePlan = async (id: number) => {
+    setError(null)
+    setDeletingPlanIds((prev) => [...prev, id])
+
     try {
       const response = await fetch(`http://localhost:8080/api/plan/${id}`, {
         method: 'DELETE',
@@ -137,6 +141,8 @@ function App() {
       setHistory((prev) => prev.filter((item) => item.id !== id))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setDeletingPlanIds((prev) => prev.filter((planId) => planId !== id))
     }
   }
 
@@ -228,17 +234,20 @@ function App() {
 
         {!loadingHistory && history.length > 0 && (
           <ul className='history-list'>
-            {history.map((item) => (
-              <li key={item.id} className='history-item'>
-                <span>
-                  #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
-                  {new Date(item.createdAt).toLocaleString()}
-                </span>
-                <button type='button' onClick={() => handleDeletePlan(item.id)}>
-                  Delete
-                </button>
-              </li>
-            ))}
+            {history.map((item) => {
+              const isDeleting = deletingPlanIds.includes(item.id)
+
+              return (
+                <li key={item.id} className='history-item'>
+                  <span>
+                    #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
+                  </span>
+                  <button type='button' onClick={() => handleDeletePlan(item.id)} disabled={isDeleting}>
+                    {isDeleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>
