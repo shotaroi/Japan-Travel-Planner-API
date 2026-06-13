@@ -8,12 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.japanplanner.common.GlobalExceptionHandler;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,7 +34,7 @@ class PlanControllerHistoryTest {
     private TripPlanRepository tripPlanRepository;
     
     @Test
-    void getPlanHistory_returnsSavedPlans() throws Exception {
+    void getPlanHistory_returnsPaginatedSavedPlans() throws Exception {
         TripPlanEntity tokyo = new TripPlanEntity();
         tokyo.setDestination("tokyo");
         tokyo.setDays(3);
@@ -44,7 +47,8 @@ class PlanControllerHistoryTest {
         ReflectionTestUtils.setField(kyoto, "id", 2L);
         ReflectionTestUtils.setField(kyoto, "createdAt", LocalDateTime.of(2026, 1, 2, 11, 30));
 
-        given(tripPlanRepository.findAll()).willReturn(List.of(tokyo, kyoto));
+        given(tripPlanRepository.findAll(any(PageRequest.class)))
+        .willReturn(new PageImpl<>(List.of(tokyo, kyoto), PageRequest.of(0, 10), 2));
 
         mockMvc.perform(get("/api/plan"))
         .andExpect(status().isOk())
@@ -55,6 +59,12 @@ class PlanControllerHistoryTest {
         .andExpect(jsonPath("$[1].id").value(2))
         .andExpect(jsonPath("$[1].destination").value("kyoto"))
         .andExpect(jsonPath("$[1].days").value(2))
-        .andExpect(jsonPath("$[1].createdAt").exists());
+        .andExpect(jsonPath("$[1].createdAt").exists())
+        .andExpect(jsonPath("$.page").value(0))
+        .andExpect(jsonPath("$.size").value(10))
+        .andExpect(jsonPath("$.totalElements").value(2))
+        .andExpect(jsonPath("$.totalPages").value(1))
+        .andExpect(jsonPath("$.first").value(true))
+        .andExpect(jsonPath("$.last").value(true));
     }
 }
