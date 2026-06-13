@@ -26,12 +26,24 @@ type PlanHistoryItem = {
   createdAt: string
 }
 
+type PlanHistoryPageResponse = {
+  content: PlanHistoryItem[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  first: boolean
+  last: boolean
+}
+
 type ValidationErrorResponse = {
   timestamp: string
   status: number
   message: string
   fieldErrors: Record<string, string>
 }
+
+const HISTORY_PAGE_SIZE = 5;
 
 function App() {
   const [destinations, setDestinations] = useState<Destination[]>([])
@@ -48,8 +60,11 @@ function App() {
 
   const [plan, setPlan] = useState<PlanResponse | null>(null)
   const [history, setHistory] = useState<PlanHistoryItem[]>([])
+  const [historyPage, setHistoryPage] = useState(0)
+  const [historyTotalPages, setHistoryTotalPages] = useState(0)
+  const [historyTotalElements, setHistoryTotalElements] = useState(0)
 
-  const loadPlanHistory = async () => {
+  const loadPlanHistory = async (targetPage = historyPage) => {
     try {
       setLoadingHistory(true)
       const response = await fetch('http://localhost:8080/api/plan')
@@ -57,8 +72,11 @@ function App() {
         throw new Error(`Failed to load history (${response.status})`)
       }
 
-      const data = (await response.json()) as PlanHistoryItem[]
-      setHistory(data.slice().reverse())
+      const data = (await response.json()) as PlanHistoryPageResponse
+      setHistory(data.content)
+      setHistoryPage(data.page)
+      setHistoryTotalPages(data.totalPages)
+      setHistoryTotalElements(data.totalElements)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -70,10 +88,15 @@ function App() {
     const fetchDestinations = async () => {
       try {
         const response = await fetch('http://localhost:8080/api/destinations')
-        if (!response.ok) throw new Error(`Request failed: ${response.status}`)
+        if (!response.ok) {
+          throw new Error(`Failed to load destinations ${response.status}`)
+        }
         const data = (await response.json()) as Destination[]
         setDestinations(data)
-        if (data.length > 0) setSelectedDestination(data[0].id)
+
+        if (data.length > 0) {
+          setSelectedDestination(data[0].id)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
@@ -138,13 +161,17 @@ function App() {
         throw new Error(`Failed to delete plan (${response.status})`)
       }
 
-      setHistory((prev) => prev.filter((item) => item.id !== id))
+      const shouldGoPreviousPage = history.length === 1 && historyPage > 0
+      await loadPlanHistory(shouldGoPreviousPage ? historyPage - 1 : historyPage)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setDeletingPlanIds((prev) => prev.filter((planId) => planId !== id))
     }
   }
+
+  const canGoPrevious = historyPage > 0
+  const canGoNext = historyPage + 1 < historyTotalPages
 
   return (
     <main className='app'>
@@ -225,10 +252,14 @@ function App() {
       <section className='history'>
         <div className='history-header'>
           <h2>Saved Plans</h2>
-          <button type='button' onClick={loadPlanHistory} disabled={loadingHistory}>
+          <button type='button' onClick={() => loadPlanHistory(historyPage)} disabled={loadingHistory}>
             {loadingHistory ? 'Refreshing...' : 'Refresh history'}
           </button>
         </div>
+
+        <p>
+          Total saved plans: <strong>{historyTotalElements}</strong>
+        </p>
 
         {!loadingHistory && history.length === 0 && <p>No saved plans yet.</p>}
 
@@ -250,6 +281,26 @@ function App() {
             })}
           </ul>
         )}
+
+        <div className='history-pagination'>
+          <button
+            type='button'
+            onClick={() => loadPlanHistory(historyPage - 1)}
+            disabled={loadingHistory || !canGoPrevious}
+          >
+            Previous
+          </button>
+          <span>
+            Page {historyTotalPages === 0 ? 0 : historyPage + 1} / {historyTotalPages}
+          </span>
+          <button
+            type='button'
+            onClick={() => loadPlanHistory(historyPage + 1)}
+            disabled={loadingHistory || !canGoNext}
+          >
+            Next
+          </button>
+        </div>
       </section>
     </main>
   )
