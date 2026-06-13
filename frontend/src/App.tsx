@@ -67,12 +67,19 @@ function App() {
   const loadPlanHistory = async (targetPage = historyPage) => {
     try {
       setLoadingHistory(true)
-      const response = await fetch('http://localhost:8080/api/plan')
+      const response = await fetch(`http://localhost:8080/api/plan?page=${targetPage}&size=${HISTORY_PAGE_SIZE}`)
       if (!response.ok) {
         throw new Error(`Failed to load history (${response.status})`)
       }
 
       const data = (await response.json()) as PlanHistoryPageResponse
+
+      // If current page becomes invalid (e.g., after deletion), move to the last valid page.
+      if (data.totalPages > 0 && targetPage > data.totalPages - 1) {
+        await loadPlanHistory(data.totalPages - 1)
+        return
+      }
+
       setHistory(data.content)
       setHistoryPage(data.page)
       setHistoryTotalPages(data.totalPages)
@@ -172,6 +179,8 @@ function App() {
 
   const canGoPrevious = historyPage > 0
   const canGoNext = historyPage + 1 < historyTotalPages
+  const historyRangeStart = historyTotalElements === 0 ? 0 : historyPage * HISTORY_PAGE_SIZE + 1
+  const historyRangeEnd = historyTotalElements === 0 ? 0 : Math.min((historyPage + 1) * HISTORY_PAGE_SIZE, historyTotalElements)
 
   return (
     <main className='app'>
@@ -258,7 +267,8 @@ function App() {
         </div>
 
         <p>
-          Total saved plans: <strong>{historyTotalElements}</strong>
+          Showing {historyRangeStart} - {historyRangeEnd} of {' '}
+          <strong>{historyTotalElements}</strong>
         </p>
 
         {!loadingHistory && history.length === 0 && <p>No saved plans yet.</p>}
@@ -272,8 +282,13 @@ function App() {
                 <li key={item.id} className='history-item'>
                   <span>
                     #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
+                    {new Date(item.createdAt) .toLocaleString()}
                   </span>
-                  <button type='button' onClick={() => handleDeletePlan(item.id)} disabled={isDeleting}>
+                  <button 
+                    type='button' 
+                    onClick={() => handleDeletePlan(item.id)} 
+                    disabled={isDeleting}
+                  >
                     {isDeleting ? 'Deleting...' : 'Delete'}
                   </button>
                 </li>
