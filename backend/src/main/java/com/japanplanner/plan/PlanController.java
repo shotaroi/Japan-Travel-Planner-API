@@ -59,7 +59,14 @@ public class PlanController {
         int safeSize = Math.min(Math.max(size, 1), 100); // Limit the size to 100
 
         Page<TripPlanEntity> result = tripPlanRepository.findAll(
-            PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"))
+            PageRequest.of(
+                safePage,
+                safeSize,
+                Sort.by(
+                    Sort.Order.desc("createdAt"),
+                    Sort.Order.desc("id")
+                )
+            )
         ); 
 
         List<PlanSummaryResponse> content = result.getContent()
