@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -79,6 +80,15 @@ class PlanControllerHistoryTest {
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(100));
         
-        verify(tripPlanRepository).findAll(PageRequest.of(0, 100, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")));
+        verify(tripPlanRepository).findAll(org.mockito.ArgumentMatchers.<Pageable>argThat(pageable -> 
+            pageable.getPageNumber() == 0
+                && pageable.getPageSize() == 100
+                && pageable.getSort().equals(
+                    org.springframework.data.domain.Sort.by(
+                        Sort.Order.desc("createdAt"),
+                        Sort.Order.desc("id")
+                    ))
+                )
+        );
     }
 }
