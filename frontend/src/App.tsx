@@ -44,8 +44,12 @@ type ValidationErrorResponse = {
 }
 
 const HISTORY_PAGE_SIZE = 5;
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
-const apiUrl = (path: string) => `${API_BASE_URL}${path}`
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/+$/, '') // Remove trailing slash if present
+const apiUrl = (path: string) => {
+  const normalizedPath = path.replace(/^\/+/, '')
+  return `${API_BASE_URL}/${normalizedPath}`
+}
 
 function App() {
   const [destinations, setDestinations] = useState<Destination[]>([])
