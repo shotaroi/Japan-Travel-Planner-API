@@ -44,6 +44,8 @@ type ValidationErrorResponse = {
 }
 
 const HISTORY_PAGE_SIZE = 5;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
+const apiUrl = (path: string) => `${API_BASE_URL}${path}`
 
 function App() {
   const [destinations, setDestinations] = useState<Destination[]>([])
@@ -67,7 +69,7 @@ function App() {
   const loadPlanHistory = async (targetPage = historyPage) => {
     try {
       setLoadingHistory(true)
-      const response = await fetch(`http://localhost:8080/api/plan?page=${targetPage}&size=${HISTORY_PAGE_SIZE}`)
+      const response = await fetch(apiUrl(`/api/plan?page=${targetPage}&size=${HISTORY_PAGE_SIZE}`))
       if (!response.ok) {
         throw new Error(`Failed to load history (${response.status})`)
       }
@@ -94,7 +96,7 @@ function App() {
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/destinations')
+        const response = await fetch(apiUrl('/api/destinations'))
         if (!response.ok) {
           throw new Error(`Failed to load destinations ${response.status}`)
         }
@@ -122,7 +124,7 @@ function App() {
     setValidationErrors({})
 
     try {
-      const response = await fetch('http://localhost:8080/api/plan', {
+      const response = await fetch(apiUrl('/api/plan'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +162,7 @@ function App() {
     setDeletingPlanIds((prev) => [...prev, id])
 
     try {
-      const response = await fetch(`http://localhost:8080/api/plan/${id}`, {
+      const response = await fetch(apiUrl(`/api/plan/${id}`), {
         method: 'DELETE',
       })
 
