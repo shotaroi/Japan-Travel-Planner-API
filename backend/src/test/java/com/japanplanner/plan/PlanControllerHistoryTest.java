@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -80,7 +81,7 @@ class PlanControllerHistoryTest {
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(100));
         
-        verify(tripPlanRepository).findAll(org.mockito.ArgumentMatchers.<Pageable>argThat(pageable -> 
+        verify(tripPlanRepository).findAll(argThat((Pageable pageable) -> 
             pageable.getPageNumber() == 0
                 && pageable.getPageSize() == 100
                 && pageable.getSort().equals(
