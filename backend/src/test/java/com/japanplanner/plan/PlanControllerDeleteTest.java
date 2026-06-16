@@ -30,6 +30,8 @@ class PlanControllerDeleteTest {
 
     @Test
     void deletePlan_whenIdExists_returnNoContent() throws Exception {
+        given(tripPlanRepository.existsById(10L)).willReturn(true);
+        
         mockMvc.perform(delete("/api/plan/{id}", 10L))
         .andExpect(status().isNoContent());
 

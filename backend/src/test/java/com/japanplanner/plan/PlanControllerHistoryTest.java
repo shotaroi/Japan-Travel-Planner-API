@@ -83,16 +83,6 @@ class PlanControllerHistoryTest {
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(100));
         
-        // verify(tripPlanRepository).findAll(argThat((Pageable pageable) -> 
-        //     pageable.getPageNumber() == 0
-        //         && pageable.getPageSize() == 100
-        //         && pageable.getSort().equals(
-        //             org.springframework.data.domain.Sort.by(
-        //                 Sort.Order.desc("createdAt"),
-        //                 Sort.Order.desc("id")
-        //             ))
-        //         )
-        // );
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(tripPlanRepository).findAll(pageableCaptor.capture());
 
