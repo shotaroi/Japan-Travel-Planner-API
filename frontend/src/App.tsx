@@ -79,6 +79,7 @@ function App() {
       }
 
       const data = (await response.json()) as PlanHistoryPageResponse
+      setError(null)
 
       // If current page becomes invalid (e.g., after deletion), move to the last valid page.
       if (data.totalPages > 0 && targetPage > data.totalPages - 1) {
@@ -153,6 +154,7 @@ function App() {
 
       const data = (await response.json()) as PlanResponse
       setPlan(data)
+      setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       setPlan(null)
@@ -176,6 +178,7 @@ function App() {
 
       const shouldGoPreviousPage = history.length === 1 && historyPage > 0
       await loadPlanHistory(shouldGoPreviousPage ? historyPage - 1 : historyPage)
+      setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
