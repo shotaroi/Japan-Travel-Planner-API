@@ -1,6 +1,6 @@
 package com.japanplanner.plan;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -25,11 +25,12 @@ public class TripPlanEntity {
     @Column(nullable = false)
     private int days;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    @Setter(AccessLevel.NONE)
+    private Instant createdAt;
 
     @PrePersist
     void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = Instant.now();
     }
 }
