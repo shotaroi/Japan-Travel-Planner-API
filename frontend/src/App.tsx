@@ -188,6 +188,12 @@ function App() {
   const historyRangeStart = historyTotalElements === 0 ? 0 : historyPage * HISTORY_PAGE_SIZE + 1
   const historyRangeEnd = historyTotalElements === 0 ? 0 : Math.min((historyPage + 1) * HISTORY_PAGE_SIZE, historyTotalElements)
 
+  const formatDateTime = (isoString: string) => 
+    new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(isoString))
+
   return (
     <main className='app'>
       <h1>Japan Travel Planner</h1>
@@ -287,8 +293,8 @@ function App() {
               return (
                 <li key={item.id} className='history-item'>
                   <span>
-                    #{item.id} - {item.destination.toUpperCase()} ({item.days} days) -{' '}
-                    {new Date(item.createdAt) .toLocaleString()}
+                    #{item.id} - {item.destination.toUpperCase()} ({item.days} days) - {' '}
+                    {formatDateTime(item.createdAt)}
                   </span>
                   <button 
                     type='button' 
