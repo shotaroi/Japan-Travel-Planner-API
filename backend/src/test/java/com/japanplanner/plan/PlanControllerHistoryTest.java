@@ -15,7 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,13 +44,13 @@ class PlanControllerHistoryTest {
         tokyo.setDestination("tokyo");
         tokyo.setDays(3);
         ReflectionTestUtils.setField(tokyo, "id", 1L);
-        ReflectionTestUtils.setField(tokyo, "createdAt", LocalDateTime.of(2026, 1, 1, 10, 0));
+        ReflectionTestUtils.setField(tokyo, "createdAt", Instant.parse("2026-01-01T10:00:00Z"));
 
         TripPlanEntity kyoto = new TripPlanEntity();
         kyoto.setDestination("kyoto");
         kyoto.setDays(2);
         ReflectionTestUtils.setField(kyoto, "id", 2L);
-        ReflectionTestUtils.setField(kyoto, "createdAt", LocalDateTime.of(2026, 1, 2, 11, 30));
+        ReflectionTestUtils.setField(kyoto, "createdAt", Instant.parse("2026-01-02T11:30:00Z"));
 
         given(tripPlanRepository.findAll(any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(tokyo, kyoto), PageRequest.of(0, 10), 2));
