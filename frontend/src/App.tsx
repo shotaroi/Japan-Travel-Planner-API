@@ -70,10 +70,16 @@ function App() {
   const [historyTotalPages, setHistoryTotalPages] = useState(0)
   const [historyTotalElements, setHistoryTotalElements] = useState(0)
 
-  const loadPlanHistory = async (targetPage = historyPage) => {
+  const loadPlanHistory = async (
+    targetPage = historyPage,
+    signal?: AbortSignal
+  ) => {
     try {
       setLoadingHistory(true)
-      const response = await fetch(apiUrl(`/api/plan?page=${targetPage}&size=${HISTORY_PAGE_SIZE}`))
+      const response = await fetch(
+        apiUrl(`/api/plan?page=${targetPage}&size=${HISTORY_PAGE_SIZE}`),
+        { signal }
+      )
       if (!response.ok) {
         throw new Error(`Failed to load history (${response.status})`)
       }
@@ -92,6 +98,7 @@ function App() {
       setHistoryTotalPages(data.totalPages)
       setHistoryTotalElements(data.totalElements)
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return 
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoadingHistory(false)
@@ -99,6 +106,9 @@ function App() {
   }
 
   useEffect(() => {
+    const controller = new AbortController()
+    const { signal } = controller
+    
     const fetchDestinations = async () => {
       try {
         const response = await fetch(apiUrl('/api/destinations'))
@@ -112,6 +122,7 @@ function App() {
           setSelectedDestination(data[0].id)
         }
       } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return 
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
         setLoadingDestinations(false)
@@ -119,7 +130,7 @@ function App() {
     }
 
     fetchDestinations()
-    loadPlanHistory()
+    loadPlanHistory(0, signal)
   }, [])
 
   const handleGeneratePlan: SubmitEventHandler<HTMLFormElement> = async (event) => {
