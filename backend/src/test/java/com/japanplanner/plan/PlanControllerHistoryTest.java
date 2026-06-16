@@ -2,6 +2,7 @@ package com.japanplanner.plan;
 
 import com.japanplanner.common.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,8 +18,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -81,15 +83,28 @@ class PlanControllerHistoryTest {
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(100));
         
-        verify(tripPlanRepository).findAll(argThat((Pageable pageable) -> 
-            pageable.getPageNumber() == 0
-                && pageable.getPageSize() == 100
-                && pageable.getSort().equals(
-                    org.springframework.data.domain.Sort.by(
-                        Sort.Order.desc("createdAt"),
-                        Sort.Order.desc("id")
-                    ))
-                )
+        // verify(tripPlanRepository).findAll(argThat((Pageable pageable) -> 
+        //     pageable.getPageNumber() == 0
+        //         && pageable.getPageSize() == 100
+        //         && pageable.getSort().equals(
+        //             org.springframework.data.domain.Sort.by(
+        //                 Sort.Order.desc("createdAt"),
+        //                 Sort.Order.desc("id")
+        //             ))
+        //         )
+        // );
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(tripPlanRepository).findAll(pageableCaptor.capture());
+
+        Pageable pageable = pageableCaptor.getValue();
+        assertEquals(0, pageable.getPageNumber());
+        assertEquals(100, pageable.getPageSize());
+
+        Sort expectedSort = Sort.by(
+            Sort.Order.desc("createdAt"),
+            Sort.Order.desc("id")
         );
+        assertEquals(expectedSort, pageable.getSort());
+        assertTrue(pageable.getSort().isSorted());
     }
 }
