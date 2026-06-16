@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.japanplanner.plan.PlanNotFoundException;
 
+import jakarta.validation.ConstraintViolationException;
+
 @RestControllerAdvice // This annotation is used to handle exceptions globally across all controllers
 public class GlobalExceptionHandler {
     
@@ -38,6 +40,16 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiErrorResponse handlePlanNotFound(PlanNotFoundException ex) {
         return new ApiErrorResponse(Instant.now().toString(), 404, ex.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiErrorResponse handleConstraintViolation(ConstraintViolationException ex) {
+        return new ApiErrorResponse(
+            Instant.now().toString(),
+            400,
+            ex.getMessage()
+            );
     }
 
     public record ValidationErrorResponse(
