@@ -173,6 +173,9 @@ function App() {
       })
 
       if (!response.ok && response.status !== 204) {
+        if (response.status === 404) {
+          throw new Error('This plan was already removed. History has been refreshed.')
+        }
         throw new Error(`Failed to delete plan (${response.status})`)
       }
 
@@ -181,6 +184,7 @@ function App() {
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
+      await loadPlanHistory()
     } finally {
       setDeletingPlanIds((prev) => prev.filter((planId) => planId !== id))
     }
