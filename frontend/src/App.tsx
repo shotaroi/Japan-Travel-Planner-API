@@ -43,6 +43,12 @@ type ValidationErrorResponse = {
   fieldErrors: Record<string, string>
 }
 
+type ApiErrorResponse = {
+  timestamp: string
+  status: number
+  message: string
+}
+
 const HISTORY_PAGE_SIZE = 5;
 const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 const API_BASE_URL = RAW_API_BASE_URL.replace(/\/+$/, '') // Remove trailing slash if present
@@ -184,10 +190,12 @@ function App() {
       })
 
       if (!response.ok && response.status !== 204) {
-        if (response.status === 404) {
-          throw new Error('This plan was already removed. History has been refreshed.')
-        }
-        throw new Error(`Failed to delete plan (${response.status})`)
+        const fallback = response.status === 404
+        ? 'This plan was already removed. History has been refreshed.'
+        : `Failed to delete plan (${response.status})`
+
+        const message = await readApiErrorMessage(response, fallback)
+        throw new Error(message)
       }
 
       const shouldGoPreviousPage = history.length === 1 && historyPage > 0
@@ -198,6 +206,17 @@ function App() {
       await loadPlanHistory()
     } finally {
       setDeletingPlanIds((prev) => prev.filter((planId) => planId !== id))
+    }
+  }
+
+  const readApiErrorMessage = async (response: Response, fallback: string) => {
+    try {
+      const data = (await response.json()) as Partial<ApiErrorResponse>
+      if (typeof data.message === 'string' && data.message.trim() !== '') {
+        return data.message
+      }
+    } catch {
+      return fallback
     }
   }
 
