@@ -201,8 +201,9 @@ function App() {
     }
   }
 
-  const canGoPrevious = historyPage > 0
-  const canGoNext = historyPage + 1 < historyTotalPages
+  const hasHistoryPages = historyTotalPages > 0
+  const canGoPrevious = hasHistoryPages && historyPage > 0
+  const canGoNext = hasHistoryPages && historyPage + 1 < historyTotalPages
   const historyRangeStart = historyTotalElements === 0 ? 0 : historyPage * HISTORY_PAGE_SIZE + 1
   const historyRangeEnd = historyTotalElements === 0 ? 0 : Math.min((historyPage + 1) * HISTORY_PAGE_SIZE, historyTotalElements)
 
@@ -336,7 +337,7 @@ function App() {
             Previous
           </button>
           <span>
-            Page {historyTotalPages === 0 ? 0 : historyPage + 1} / {historyTotalPages}
+            Page {historyPage + 1} / {historyTotalPages}
           </span>
           <button
             type='button'

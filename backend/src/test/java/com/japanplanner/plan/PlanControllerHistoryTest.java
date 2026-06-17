@@ -74,27 +74,15 @@ class PlanControllerHistoryTest {
     }
 
     @Test
-    void getPlanHistory_whenPageAndSizeOutOfRange_appliesSafeBounds() throws Exception {
+    void getPlanHistory_whenPageOrSizeInvalid_returnsBadRequest() throws Exception {
         given(tripPlanRepository.findAll(any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(), PageRequest.of(0, 100), 0));
 
         mockMvc.perform(get("/api/plan?page=-5&size=999"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").value(0))
-                .andExpect(jsonPath("$.size").value(100));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").exists());
         
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(tripPlanRepository).findAll(pageableCaptor.capture());
-
-        Pageable pageable = pageableCaptor.getValue();
-        assertEquals(0, pageable.getPageNumber());
-        assertEquals(100, pageable.getPageSize());
-
-        Sort expectedSort = Sort.by(
-            Sort.Order.desc("createdAt"),
-            Sort.Order.desc("id")
-        );
-        assertEquals(expectedSort, pageable.getSort());
-        assertTrue(pageable.getSort().isSorted());
+        verify(tripPlanRepository, org.mockito.Mockito.never()).findAll(any(Pageable.class));
     }
 }
