@@ -3,6 +3,7 @@ package com.japanplanner.common;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,10 +46,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiErrorResponse handleConstraintViolation(ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations()
+            .stream()
+            .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+            .collect(Collectors.joining(","));
+
         return new ApiErrorResponse(
             Instant.now().toString(),
             400,
-            ex.getMessage()
+            message.isBlank() ? "Invalid request parameters" : message
             );
     }
 
