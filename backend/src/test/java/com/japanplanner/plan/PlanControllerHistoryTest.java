@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -81,6 +82,6 @@ class PlanControllerHistoryTest {
                 .andExpect(jsonPath("$.message").value(containsString("page")))
                 .andExpect(jsonPath("$.message").value(containsString("size")));
                 
-        verify(tripPlanRepository, org.mockito.Mockito.never()).findAll(any(Pageable.class));
+        verify(tripPlanRepository, never()).findAll(any(Pageable.class));
     }
 }
