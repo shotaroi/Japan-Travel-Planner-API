@@ -87,7 +87,11 @@ function App() {
         { signal }
       )
       if (!response.ok) {
-        throw new Error(`Failed to load history (${response.status})`)
+        const message = await readApiErrorMessage(
+          response,
+          `Failed to load history (${response.status})`
+        )
+        throw new Error(message)
       }
 
       const data = (await response.json()) as PlanHistoryPageResponse
@@ -166,7 +170,12 @@ function App() {
           return
         }
 
-        throw new Error(`Failed to generate plan (${response.status})`)
+        const message = await readApiErrorMessage(
+          response,
+          `Failed to generate plan (${response.status})`
+        )
+
+        throw new Error(message)
       }
 
       const data = (await response.json()) as PlanResponse
