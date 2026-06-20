@@ -1,6 +1,8 @@
 # Japan Travel Planner API + Frontend
 
 ## Environment Variables
+- You can copy `frontend/.env.example` and `backend/.env.example` to local `.env` files as templates.
+
 
 ### Backend (`backend`)
 - `APP_CORS_ALLOWED_ORIGIN` (default: `http://localhost:5173`)
