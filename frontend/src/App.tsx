@@ -130,7 +130,7 @@ function App() {
     
     const fetchDestinations = async () => {
       try {
-        const response = await fetch(apiUrl('/api/destinations'))
+        const response = await fetch(apiUrl('/api/destinations'), { signal })
         if (!response.ok) {
           throw new Error(`Failed to load destinations ${response.status}`)
         }
@@ -150,6 +150,8 @@ function App() {
 
     fetchDestinations()
     loadPlanHistory(0, signal)
+
+    return () => controller.abort()
   }, [])
 
   useEffect(() => {
@@ -197,6 +199,7 @@ function App() {
 
       const data = (await response.json()) as PlanResponse
       setPlan(data)
+      await loadPlanHistory(0)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -242,8 +245,9 @@ function App() {
         return data.message
       }
     } catch {
-      return fallback
-    }
+
+    } 
+    return fallback
   }
 
   const handleClearHistory = async () => {
@@ -328,7 +332,7 @@ function App() {
 
       {Object.keys(validationErrors).length > 0 && ( // If there are validation errors, show them in a list
         <div className='error'>
-          <p>Please fix the folowing:</p>
+          <p>Please fix the following:</p>
           <ul>
             {Object.entries(validationErrors).map(([field, message]) => (
               <li key={field}>
@@ -368,6 +372,7 @@ function App() {
           </button>
           <button
             type='button'
+            className='clear-button'
             onClick={handleClearHistory}
             disabled={clearingHistory || loadingHistory || historyTotalElements === 0}
           >
@@ -406,25 +411,28 @@ function App() {
           </ul>
         )}
 
-        <div className='history-pagination'>
-          <button
-            type='button'
-            onClick={() => loadPlanHistory(historyPage - 1)}
-            disabled={loadingHistory || !canGoPrevious}
-          >
-            Previous
-          </button>
-          <span>
-            Page {historyPage + 1} / {historyTotalPages}
-          </span>
-          <button
-            type='button'
-            onClick={() => loadPlanHistory(historyPage + 1)}
-            disabled={loadingHistory || !canGoNext}
-          >
-            Next
-          </button>
-        </div>
+        {hasHistoryPages && (
+          <div className='history-pagination'>
+            <button
+              type='button'
+              onClick={() => loadPlanHistory(historyPage - 1)}
+              disabled={loadingHistory || !canGoPrevious}
+            >
+              Previous
+            </button>
+            <span>
+              Page {historyPage + 1} / {historyTotalPages}
+            </span>
+            <button
+              type='button'
+              onClick={() => loadPlanHistory(historyPage + 1)}
+              disabled={loadingHistory || !canGoNext}
+            >
+              Next
+            </button>
+          </div>
+        )}
+        
       </section>
     </main>
   )

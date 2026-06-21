@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,11 +22,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/plan")
 @RequiredArgsConstructor // This annotation is used to create a constructor with required arguments
+@Validated
 public class PlanController {
 
     private final TripPlanRepository tripPlanRepository;
@@ -52,8 +55,8 @@ public class PlanController {
 
     @GetMapping
     public PlanHistoryPageResponse getPlanHistory(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "0") @Min(0) int page,
+        @RequestParam(defaultValue = "10") @Positive @Max(100) int size
     ) {
         int safePage = Math.max(page, 0); // Ensure the page is at least 0
         int safeSize = Math.min(Math.max(size, 1), 100); // Limit the size to 100
