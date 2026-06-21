@@ -25,6 +25,6 @@ public class WebConfig {
         return new CorsFilter(source);
     }
 
-    @Value("${app.cors.allowed-origin:http://localhost:5173")
+    @Value("${app.cors.allowed-origin:http://localhost:5173}")
     private String allowedOrigin;
 }

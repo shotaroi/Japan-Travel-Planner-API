@@ -74,6 +74,7 @@ function App() {
   const [loadingPlan, setLoadingPlan] = useState(false)
   const [loadingHistory, setLoadingHistory] = useState(true)
   const [deletingPlanIds, setDeletingPlanIds] = useState<number[]>([])
+  const [clearingHistory, setClearingHistory] = useState(false)
 
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
@@ -245,6 +246,32 @@ function App() {
     }
   }
 
+  const handleClearHistory = async () => {
+    setError(null)
+    setClearingHistory(true)
+
+    try {
+      const response = await fetch(apiUrl('/api/plan'), {
+        method: 'DELETE'
+      })
+
+      if (!response.ok && response.status !== 204) {
+        const message = await readApiErrorMessage(
+          response,
+          `Failed to clear history (${response.status})`
+        )
+        throw new Error(message)
+      }
+
+      await loadPlanHistory(0)
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setClearingHistory(false)
+    }
+  }
+
   const hasHistoryPages = historyTotalPages > 0
   const canGoPrevious = hasHistoryPages && historyPage > 0
   const canGoNext = hasHistoryPages && historyPage + 1 < historyTotalPages
@@ -338,6 +365,13 @@ function App() {
           <h2>Saved Plans</h2>
           <button type='button' onClick={() => loadPlanHistory(historyPage)} disabled={loadingHistory}>
             {loadingHistory ? 'Refreshing...' : 'Refresh history'}
+          </button>
+          <button
+            type='button'
+            onClick={handleClearHistory}
+            disabled={clearingHistory || loadingHistory || historyTotalElements === 0}
+          >
+            {clearingHistory ? 'Clearing...' : 'Clear History'}
           </button>
         </div>
 

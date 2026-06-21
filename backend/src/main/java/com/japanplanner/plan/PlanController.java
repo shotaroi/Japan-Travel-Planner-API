@@ -99,6 +99,12 @@ public class PlanController {
         tripPlanRepository.deleteById(id);
     }
 
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAllPlans() {
+        tripPlanRepository.deleteAll();
+    }
+
     public record PlanRequest(
         @NotBlank(message = "destination is required")
         String destination,
