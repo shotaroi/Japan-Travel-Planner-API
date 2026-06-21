@@ -56,11 +56,19 @@ const apiUrl = (path: string) => {
   const normalizedPath = path.replace(/^\/+/, '')
   return `${API_BASE_URL}/${normalizedPath}`
 }
+const SELECTED_DESTINATION_KEY = 'planner.selectedDestination'
+const DAYS_KEY = 'planner.days'
 
 function App() {
   const [destinations, setDestinations] = useState<Destination[]>([])
-  const [selectedDestination, setSelectedDestination] = useState('tokyo')
-  const [days, setDays] = useState(3)
+  const [selectedDestination, setSelectedDestination] = useState(() => {
+    return localStorage.getItem(SELECTED_DESTINATION_KEY) ?? 'tokyo'
+  })
+  const [days, setDays] = useState(() => {
+    const raw = localStorage.getItem(DAYS_KEY) 
+    const parsed = raw ? Number(raw) : NaN
+    return Number.isInteger(parsed) && parsed >= 1 && parsed <= 14 ? parsed : 3
+  })
 
   const [loadingDestinations, setLoadingDestinations] = useState(true)
   const [loadingPlan, setLoadingPlan] = useState(false)
@@ -128,7 +136,7 @@ function App() {
         const data = (await response.json()) as Destination[]
         setDestinations(data)
 
-        if (data.length > 0) {
+        if (data.length > 0 && !data.some((d) => d.id === selectedDestination)) {
           setSelectedDestination(data[0].id)
         }
       } catch (err) {
@@ -142,6 +150,14 @@ function App() {
     fetchDestinations()
     loadPlanHistory(0, signal)
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem(SELECTED_DESTINATION_KEY, selectedDestination)
+  }, [selectedDestination])
+
+  useEffect(() => {
+    localStorage.setItem(DAYS_KEY, String(days))
+  }, [days])
 
   const handleGeneratePlan: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
