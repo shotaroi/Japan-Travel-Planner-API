@@ -214,17 +214,17 @@
   gap: 0.5rem;
 }
 
-.history-actions .clear-button {
+.history-header .clear-button {
   border-color: #fca5a5;
   background: #fee2e2;
   color: #b91c1c;
 }
 
-.history-actions .clear-button:hover:not(:disabled) {
+.history-header .clear-button:hover:not(:disabled) {
   background: #fecaca;
 }
 
-.history-actions .clear-button:disabled {
+.history-header .clear-button:disabled {
   color: #fca5a5;
   border-color: #fecaca;
   background: #fff1f2;
