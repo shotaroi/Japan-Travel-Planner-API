@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -108,6 +109,25 @@ public class PlanController {
         tripPlanRepository.deleteAll();
     }
 
+    @PatchMapping("/{id}")
+    public PlanSummaryResponse updatePlayDays(
+        @PathVariable Long id,
+        @Valid @RequestBody UpdatePlanRequest request
+    ) {
+        TripPlanEntity plan = tripPlanRepository.findById(id)
+            .orElseThrow(() -> new PlanNotFoundException(id));
+
+        plan.setDays(request.days());
+        TripPlanEntity saved = tripPlanRepository.save(plan);
+
+        return new PlanSummaryResponse(
+            saved.getId(),
+            saved.getDestination(),
+            saved.getDays(),
+            saved.getCreatedAt().toString()
+        );
+    }
+
     public record PlanRequest(
         @NotBlank(message = "destination is required")
         String destination,
@@ -144,5 +164,11 @@ public class PlanController {
         int totalPages,
         boolean first,
         boolean last
+    ) {}
+
+    public record UpdatePlanRequest(
+        @Min(value = 1, message = "days must be at least 1")
+        @Max(value = 14, message = "days must be at most 14")
+        int days
     ) {}
 }
