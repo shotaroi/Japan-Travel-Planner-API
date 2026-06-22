@@ -484,6 +484,7 @@ function App() {
                         </button>
                         <button
                           type='button'
+                          className='delete-button'
                           onClick={() => handleDeletePlan(item.id)}
                           disabled={isDeleting || isUpdating}
                         >

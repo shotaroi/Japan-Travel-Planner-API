@@ -263,13 +263,13 @@
   cursor: not-allowed;
 }
 
-.history-item-actions button:last-child {
+.history-item-actions .delete-button {
   border-color: #fca5a5;
   background: #fee2e2;
   color: #b91c1c;
 }
 
-.history-item-actions button:last-child:hover:not(:disabled) {
+.history-item-actions .delete-button:hover:not(:disabled) {
   background: #fecaca;
 }
 
