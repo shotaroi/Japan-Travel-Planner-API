@@ -229,3 +229,48 @@
   border-color: #fecaca;
   background: #fff1f2;
 }
+
+.history-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.history-item-actions input[type='number'] {
+  width: 4.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #111827;
+}
+
+.history-item-actions button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.history-item-actions button:disabled {
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.history-item-actions button:last-child {
+  border-color: #fca5a5;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.history-item-actions button:last-child:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+
