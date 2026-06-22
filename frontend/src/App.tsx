@@ -95,7 +95,7 @@ function App() {
   ) => {
     const fetchPage = async (page: number) => {
       const response = await fetch(
-        apiUrl(`/api/plan?page={page}&size=${HISTORY_PAGE_SIZE}`),
+        apiUrl(`/api/plan?page=${page}&size=${HISTORY_PAGE_SIZE}`),
         { signal }
       )
 
