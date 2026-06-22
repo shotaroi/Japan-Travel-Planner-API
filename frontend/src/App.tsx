@@ -89,12 +89,12 @@ function App() {
     targetPage = historyPage,
     signal?: AbortSignal
   ) => {
-    try {
-      setLoadingHistory(true)
+    const fetchPage = async (page: number) => {
       const response = await fetch(
-        apiUrl(`/api/plan?page=${targetPage}&size=${HISTORY_PAGE_SIZE}`),
+        apiUrl(`/api/plan?page={page}&size=${HISTORY_PAGE_SIZE}`),
         { signal }
       )
+
       if (!response.ok) {
         const message = await readApiErrorMessage(
           response,
@@ -102,16 +102,21 @@ function App() {
         )
         throw new Error(message)
       }
+      return (await response.json()) as PlanHistoryPageResponse
+    }
+    
 
-      const data = (await response.json()) as PlanHistoryPageResponse
-      setError(null)
+    try {
+      setLoadingHistory(true)
 
-      // If current page becomes invalid (e.g., after deletion), move to the last valid page.
+      let data = await fetchPage(targetPage)
+
+      // if requested page is now invalid (e.g., after deletes), retry once with last page.
       if (data.totalPages > 0 && targetPage > data.totalPages - 1) {
-        await loadPlanHistory(data.totalPages - 1)
-        return
+        data = await fetchPage(data.totalPages - 1)
       }
 
+      setError(null)
       setHistory(data.content)
       setHistoryPage(data.page)
       setHistoryTotalPages(data.totalPages)
@@ -119,7 +124,7 @@ function App() {
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return 
       setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
+    }  finally {
       setLoadingHistory(false)
     }
   }
