@@ -76,6 +76,10 @@ function App() {
   const [deletingPlanIds, setDeletingPlanIds] = useState<number[]>([])
   const [clearingHistory, setClearingHistory] = useState(false)
 
+  const [editingPlanId, setEditingPlanId] = useState<number | null>(null)
+  const [editingDays, setEditingDays] = useState(1)
+  const [updatingPlanIds, setUpdatingPlanIds] = useState<number[]>([])
+
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
@@ -293,6 +297,44 @@ function App() {
       timeStyle: 'short',
     }).format(new Date(isoString))
 
+  const startEditingPlan = (item: PlanHistoryItem) => {
+    setEditingPlanId(item.id)
+    setEditingDays(item.days)
+    setError(null)
+  }
+
+  const handleUpdatePlanDays = async (id: number) => {
+    setError(null)
+    setUpdatingPlanIds((prev) => [...prev, id])
+
+    try {
+      const response = await fetch(apiUrl(`/api/plan/${id}`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({ days: editingDays }),
+      })
+
+      if (!response.ok) {
+        const message = await readApiErrorMessage(
+          response,
+          `Failed to update plan (${response.status})`
+        )
+        throw new Error(message)
+      }
+
+      await loadPlanHistory(historyPage)
+      setEditingPlanId(null)
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setUpdatingPlanIds((prev) => prev.filter((planId) => planId !== id))
+    }
+  }
+
   return (
     <main className='app'>
       <h1>Japan Travel Planner</h1>
@@ -396,6 +438,8 @@ function App() {
           <ul className='history-list'>
             {history.map((item) => {
               const isDeleting = deletingPlanIds.includes(item.id)
+              const isUpdating = updatingPlanIds.includes(item.id)
+              const isEditing = editingPlanId === item.id
 
               return (
                 <li key={item.id} className='history-item'>
@@ -403,13 +447,51 @@ function App() {
                     #{item.id} - {item.destination.toUpperCase()} ({item.days} days) - {' '}
                     {formatDateTime(item.createdAt)}
                   </span>
-                  <button 
-                    type='button' 
-                    onClick={() => handleDeletePlan(item.id)} 
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
-                  </button>
+
+                  <div className='history-item-actions'>
+                    {isEditing ? (
+                      <>
+                        <input
+                          type='number' 
+                          min={1}
+                          max={14}
+                          value={editingDays}
+                          onChange={(e) => setEditingDays(Number(e.target.value))}
+                        />
+                        <button 
+                          type='button'
+                          onClick={() => handleUpdatePlanDays(item.id)}
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => setEditingPlanId(null)}
+                          disabled={isUpdating}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type='button'
+                          onClick={() => startEditingPlan(item)}
+                          disabled={isDeleting || isUpdating}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => handleDeletePlan(item.id)}
+                          disabled={isDeleting || isUpdating}
+                        >
+                          {isDeleting ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </li>
               )
             })}
