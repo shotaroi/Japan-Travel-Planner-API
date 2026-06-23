@@ -83,6 +83,8 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
   const [plan, setPlan] = useState<PlanResponse | null>(null)
   const [history, setHistory] = useState<PlanHistoryItem[]>([])
   const [historyPage, setHistoryPage] = useState(0)
@@ -176,7 +178,7 @@ function App() {
     setLoadingPlan(true)
     setError(null)
     setValidationErrors({})
-
+    setSuccessMessage(null)
     try {
       const response = await fetch(apiUrl('/api/plan'), {
         method: 'POST',
@@ -210,6 +212,7 @@ function App() {
       setPlan(data)
       await loadPlanHistory(0)
       setError(null)
+      setSuccessMessage('Plan generated successfully.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       setPlan(null)
@@ -221,6 +224,7 @@ function App() {
   const handleDeletePlan = async (id: number) => {
     setError(null)
     setDeletingPlanIds((prev) => [...prev, id])
+    setSuccessMessage(null)
 
     try {
       const response = await fetch(apiUrl(`/api/plan/${id}`), {
@@ -239,6 +243,7 @@ function App() {
       const shouldGoPreviousPage = history.length === 1 && historyPage > 0
       await loadPlanHistory(shouldGoPreviousPage ? historyPage - 1 : historyPage)
       setError(null)
+      setSuccessMessage('Plan deleted successfully.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       await loadPlanHistory()
@@ -261,6 +266,7 @@ function App() {
 
   const handleClearHistory = async () => {
     setError(null)
+    setSuccessMessage(null)
 
     const confirmed = window.confirm('Clear all saved plans? This cannot be undone.')
     if (!confirmed) return
@@ -282,6 +288,7 @@ function App() {
 
       await loadPlanHistory(0)
       setError(null)
+      setSuccessMessage('History cleared successfully.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -310,6 +317,7 @@ function App() {
   const handleUpdatePlanDays = async (id: number) => {
     setError(null)
     setUpdatingPlanIds((prev) => [...prev, id])
+    setSuccessMessage(null)
 
     try {
       if (!Number.isInteger(editingDays) || editingDays < 1 || editingDays > 14) {
@@ -345,6 +353,7 @@ function App() {
 
       setEditingPlanId(null)
       setError(null)
+      setSuccessMessage('Plan updated successfully.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -393,6 +402,8 @@ function App() {
       )}
 
       {error && <p className='error'>{error}</p>}
+
+      {successMessage && <p className='success'>{successMessage}</p>}
 
       {Object.keys(validationErrors).length > 0 && ( // If there are validation errors, show them in a list
         <div className='error'>
