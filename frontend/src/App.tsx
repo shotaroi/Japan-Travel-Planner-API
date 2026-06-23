@@ -308,6 +308,12 @@ function App() {
     setUpdatingPlanIds((prev) => [...prev, id])
 
     try {
+      if (!Number.isInteger(editingDays) || editingDays < 1 || editingDays > 14) {
+        setError('Days must be an integer between 1 and 14.')
+        setUpdatingPlanIds((prev) => prev.filter((planId) => planId !== id))
+        return 
+      }
+      
       const response = await fetch(apiUrl(`/api/plan/${id}`), {
         method: 'PATCH',
         headers: {
@@ -325,7 +331,14 @@ function App() {
         throw new Error(message)
       }
 
-      await loadPlanHistory(historyPage)
+      const updated = (await response.json()) as PlanHistoryItem
+
+      setHistory((prev) => 
+        prev.map((item) => item.id === id 
+          ? {...item, days: updated.days, createdAt: updated.createdAt}
+          : item)
+      )
+
       setEditingPlanId(null)
       setError(null)
     } catch (err) {
