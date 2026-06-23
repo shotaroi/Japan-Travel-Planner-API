@@ -261,6 +261,10 @@ function App() {
 
   const handleClearHistory = async () => {
     setError(null)
+
+    const confirmed = window.confirm('Clear all saved plans? This cannot be undone.')
+    if (!confirmed) return
+
     setClearingHistory(true)
 
     try {
