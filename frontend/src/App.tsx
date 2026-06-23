@@ -453,6 +453,7 @@ function App() {
               const isDeleting = deletingPlanIds.includes(item.id)
               const isUpdating = updatingPlanIds.includes(item.id)
               const isEditing = editingPlanId === item.id
+              const isAnotherRowBeingEdited = editingPlanId !== null && editingPlanId !== item.id
 
               return (
                 <li key={item.id} className='history-item'>
@@ -474,14 +475,14 @@ function App() {
                         <button 
                           type='button'
                           onClick={() => handleUpdatePlanDays(item.id)}
-                          disabled={isUpdating}
+                          disabled={isDeleting || isUpdating || isAnotherRowBeingEdited}
                         >
                           {isUpdating ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           type='button'
                           onClick={() => setEditingPlanId(null)}
-                          disabled={isUpdating}
+                          disabled={isDeleting || isUpdating || isAnotherRowBeingEdited}
                         >
                           Cancel
                         </button>
@@ -491,7 +492,7 @@ function App() {
                         <button
                           type='button'
                           onClick={() => startEditingPlan(item)}
-                          disabled={isDeleting || isUpdating}
+                          disabled={isDeleting || isUpdating || isAnotherRowBeingEdited}
                         >
                           Edit
                         </button>
@@ -499,7 +500,7 @@ function App() {
                           type='button'
                           className='delete-button'
                           onClick={() => handleDeletePlan(item.id)}
-                          disabled={isDeleting || isUpdating}
+                          disabled={isDeleting || isUpdating || isAnotherRowBeingEdited}
                         >
                           {isDeleting ? 'Deleting...' : 'Delete'}
                         </button>
