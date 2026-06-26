@@ -413,7 +413,19 @@ function App() {
 
       {error && <p className='error'>{error}</p>}
 
-      {successMessage && <p className='success'>{successMessage}</p>}
+      {successMessage && (
+        <div className='success'>
+          <span>{successMessage}</span>
+          <button
+            type='button'
+            className='success-close'
+            onClick={() => setSuccessMessage(null)}
+            aria-label='Dismiss success message'
+           >
+            x
+          </button>
+        </div>
+      )}
 
       {Object.keys(validationErrors).length > 0 && ( // If there are validation errors, show them in a list
         <div className='error'>
