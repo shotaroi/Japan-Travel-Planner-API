@@ -173,6 +173,16 @@ function App() {
     localStorage.setItem(DAYS_KEY, String(days))
   }, [days])
 
+  useEffect(() => {
+    if (!successMessage) return
+
+    const timeoutId = window.setTimeout(() => {
+      setSuccessMessage(null)
+    }, 3000)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [successMessage])
+
   const handleGeneratePlan: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
     setLoadingPlan(true)
