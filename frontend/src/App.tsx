@@ -411,10 +411,14 @@ function App() {
         </form>
       )}
 
-      {error && <p className='error'>{error}</p>}
+      {error && (
+        <p className='error' role='alert' aria-live='assertive'>
+          {error}
+        </p>
+      )}
 
       {successMessage && (
-        <div className='success'>
+        <div className='success' role='status' aria-live='polite'>
           <span>{successMessage}</span>
           <button
             type='button'
@@ -428,7 +432,7 @@ function App() {
       )}
 
       {Object.keys(validationErrors).length > 0 && ( // If there are validation errors, show them in a list
-        <div className='error'>
+        <div className='error' role='alert' aria-live='assertive'>
           <p>Please fix the following:</p>
           <ul>
             {Object.entries(validationErrors).map(([field, message]) => (
